@@ -1,7 +1,14 @@
+import type { Errors, ErrorBag } from "@inertiajs/core";
+
 export interface User {
     id: number;
-    name: string;
+    username: string;
     email: string;
+}
+
+export interface IFlashMessage {
+    type: "success" | "error";
+    message: string;
 }
 
 export type PageProps<
@@ -10,4 +17,6 @@ export type PageProps<
     auth: {
         user: User;
     };
+    flash_message: IFlashMessage;
+    errors: Errors & ErrorBag;
 };
