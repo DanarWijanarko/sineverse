@@ -1,7 +1,7 @@
 export const dateWeek = (
     time: "now" | "next" | "prev",
     weekInterval: number = 1 // 1 => next a week from now
-): Date => {
+): Date | undefined => {
     var date = new Date();
 
     switch (time) {

@@ -24,7 +24,7 @@ const Modal = forwardRef(function Modal(
         rootClassName: string;
         contentClassName: string;
         defaultIsOpen: boolean;
-        getIsOpenState?: any;
+        getIsOpenState?: (data: boolean) => void;
     }>,
     ref
 ) {

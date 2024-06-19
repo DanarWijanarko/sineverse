@@ -1,8 +1,5 @@
-export const toSlug = (
-    value: string,
-    separator: string = "-"
-): string | undefined => {
-    if (!value) return undefined;
+export const toSlug = (value: string, separator: string = "-"): string => {
+    // if (!value) return undefined;
 
     return value
         .toString()

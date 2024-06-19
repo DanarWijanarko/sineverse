@@ -36,6 +36,13 @@ export default {
                 inter: ["inter"],
                 Shrikhand: ["Shrikhand"],
             },
+            keyframes: {
+                shimmer: {
+                    "100%": {
+                        transform: "translateX(100%)",
+                    },
+                },
+            },
         },
     },
     plugins: [forms],

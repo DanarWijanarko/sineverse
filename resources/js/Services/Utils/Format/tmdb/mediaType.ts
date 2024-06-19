@@ -1,5 +1,5 @@
 export const mediaType = (
-    media_type: string | "movie" | "tv"
+    media_type: string | "movie" | "tv" | undefined
 ): string | undefined => {
     switch (media_type) {
         case "movie":

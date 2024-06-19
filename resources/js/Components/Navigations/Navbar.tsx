@@ -7,12 +7,23 @@ import { PageProps } from "@/Types";
 import LogoutIcon from "../Icons/LogoutIcon";
 import Modal from "../Common/Modal";
 import SearchIcon from "../Icons/SearchIcon";
+import Login from "@/Pages/Auth/Login";
+import Register from "@/Pages/Auth/Register";
+import SecondaryButton from "../Buttons/SecondaryButton";
+import PrimaryLink from "../Buttons/PrimaryLink";
+import ChevronIcon from "../Icons/ChevronIcon";
 
 const Navbar = () => {
     const { auth } = usePage<PageProps>().props;
 
-    const loginModal = useRef(null);
-    const registerModal = useRef(null);
+    const loginModal = useRef<{ open: () => void; close: () => void }>({
+        open,
+        close,
+    });
+    const registerModal = useRef<{ open: () => void; close: () => void }>({
+        open,
+        close,
+    });
     const logoutModal = useRef<{ open: () => void; close: () => void }>({
         open,
         close,
@@ -82,7 +93,7 @@ const Navbar = () => {
                     </Dropdown.Content>
                 </Dropdown>
 
-                {auth?.user ? (
+                {auth.user ? (
                     // * Already Signed In
                     <Dropdown>
                         <Dropdown.Trigger className="flex gap-0.5 items-center hover:opacity-85">
@@ -91,23 +102,10 @@ const Navbar = () => {
                                 alt="Profile"
                                 className="w-8 h-8 rounded-full"
                             />
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="w-5 h-5 mt-1"
-                            >
-                                <path
-                                    stroke="none"
-                                    d="M0 0h24v24H0z"
-                                    fill="none"
-                                />
-                                <path d="M6 9l6 6l6 -6" />
-                            </svg>
+                            <ChevronIcon
+                                type="down"
+                                className="w-5 h-5 mt-0.5"
+                            />
                         </Dropdown.Trigger>
 
                         <Dropdown.Content className="w-48 bg-black-900 pb-2 shadow-md shadow-black-900">
@@ -129,33 +127,23 @@ const Navbar = () => {
                                 className="flex flex-row gap-2.5 items-center justify-between hover:bg-black-700"
                             >
                                 Profile
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth={3}
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
+                                <ChevronIcon
+                                    type="right"
                                     className="w-5 h-5 -mr-1"
-                                >
-                                    <path
-                                        stroke="none"
-                                        d="M0 0h24v24H0z"
-                                        fill="none"
-                                    />
-                                    <path d="M9 6l6 6l-6 6" />
-                                </svg>
+                                />
                             </Dropdown.Link>
 
                             {/* Sign Out Button */}
                             <Dropdown.Button
                                 type="button"
-                                className="flex flex-row gap-2.5 items-center justify-between hover:bg-black-700"
+                                className="w-full px-5 py-2 text-start text-sm tracking-wide font-medium flex flex-row gap-2.5 items-center justify-between hover:bg-black-700"
                                 onClick={() => logoutModal.current.open()}
                             >
                                 Sign Out
-                                <LogoutIcon className="w-5 h-5 -mr-1" />
+                                <ChevronIcon
+                                    type="right"
+                                    className="w-5 h-5 -mr-1"
+                                />
                             </Dropdown.Button>
                         </Dropdown.Content>
                     </Dropdown>
@@ -164,7 +152,7 @@ const Navbar = () => {
                     <>
                         {/* Sign In Button */}
                         <button
-                            // onClick={() => loginModal.current.open()}
+                            onClick={() => loginModal.current.open()}
                             className="px-2.5 h-8 border border-green bg-green text-center rounded-lg font-bold text-sm transition-all hover:opacity-80"
                         >
                             Sign In
@@ -172,7 +160,7 @@ const Navbar = () => {
 
                         {/* Sign Up Button */}
                         <button
-                            // onClick={() => registerModal.current.open()}
+                            onClick={() => registerModal.current.open()}
                             className="px-2.5 h-8 border border-gray text-center rounded-lg font-bold text-sm transition-all hover:opacity-80"
                         >
                             Sign Up
@@ -180,6 +168,9 @@ const Navbar = () => {
                     </>
                 )}
             </div>
+
+            <Login ref={loginModal} />
+            <Register ref={registerModal} />
 
             {/* Logout Modal Confirmation */}
             <Modal
@@ -213,22 +204,21 @@ const Navbar = () => {
 
                 {/* Button */}
                 <div className="flex flex-row justify-end items-center gap-3">
-                    <button
-                        // onClick={() => logoutModal.current.close()}
-                        className="px-3 py-1.5 border border-gray flex items-center justify-center gap-1.5 rounded-md font-bold text-xs hover:bg-gray/80 transition-all"
+                    <SecondaryButton
+                        onClick={() => logoutModal.current.close()}
+                        className="text-xs"
                     >
                         Cancel
-                    </button>
-                    <Link
+                    </SecondaryButton>
+                    <PrimaryLink
                         as="button"
                         method="post"
-                        // href={route("auth.logout")}
-                        href="#"
-                        // onClick={() => logoutModal.current.close()}
-                        className="px-3 py-1.5 bg-red flex items-center justify-center gap-1.5 rounded-md font-bold text-xs hover:bg-red/80 transition-all"
+                        href={route("auth.logout")}
+                        onClick={() => logoutModal.current.close()}
+                        className="bg-red text-xs hover:bg-red/80"
                     >
                         Yes, of Course
-                    </Link>
+                    </PrimaryLink>
                 </div>
             </Modal>
         </nav>
