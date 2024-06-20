@@ -43,6 +43,7 @@ const MultiCarousel = ({
     orientation = "horizontal",
 }: IMultiCarousel) => {
     const [hover, setHover] = useState<boolean>(false);
+    const skeletonArr = Array.from(Array(numVisible).keys());
 
     const passThroughOptions = {
         root: {
@@ -58,36 +59,30 @@ const MultiCarousel = ({
             }),
         }),
         previousButton: ({ props }: CarouselPassThroughMethodOptions) => ({
-            className: classNames(
-                {
-                    "absolute left-0 z-10 top-0 h-full w-20 justify-center pl-2 bg-gradient-to-r from-black-800 to-black-800/0":
-                        props.orientation == "horizontal",
-                    "absolute top-0.5 right-9": props.orientation == "vertical",
-                },
-                "opacity-100 disabled:opacity-0",
-                "transition-all duration-500",
-                {
-                    "translate-x-0":
-                        hover == true && props.orientation == "horizontal",
-                    "-translate-x-full":
-                        hover == false && props.orientation == "horizontal",
-                }
-            ),
+            className: classNames("opacity-100 transition-all duration-500", {
+                "absolute left-0 z-10 top-0 h-full w-20 justify-center pl-2 bg-gradient-to-r from-black-800 to-black-800/0":
+                    props.orientation == "horizontal",
+                "absolute top-0.5 right-9": props.orientation == "vertical",
+                "disabled:opacity-0": props.orientation == "horizontal",
+                "disabled:opacity-60": props.orientation == "vertical",
+                "translate-x-0":
+                    hover == true && props.orientation == "horizontal",
+                "-translate-x-full":
+                    hover == false && props.orientation == "horizontal",
+            }),
         }),
         nextButton: ({ props }: CarouselPassThroughMethodOptions) => ({
-            className: classNames(
-                {
-                    "absolute right-0 z-10 top-0 h-full w-20 justify-center pr-2 bg-gradient-to-l from-black-800 to-black-800/0":
-                        props.orientation == "horizontal",
-                    "absolute top-0.5 right-0": props.orientation == "vertical",
-                    "translate-x-0":
-                        hover == true && props.orientation == "horizontal",
-                    "translate-x-full":
-                        hover == false && props.orientation == "horizontal",
-                },
-                "opacity-100 disabled:opacity-0",
-                "transition-all duration-500"
-            ),
+            className: classNames("opacity-100 transition-all duration-500", {
+                "absolute right-0 z-10 top-0 h-full w-20 justify-center pr-2 bg-gradient-to-l from-black-800 to-black-800/0":
+                    props.orientation == "horizontal",
+                "absolute top-0.5 right-0": props.orientation == "vertical",
+                "disabled:opacity-0": props.orientation == "horizontal",
+                "disabled:opacity-60": props.orientation == "vertical",
+                "translate-x-0":
+                    hover == true && props.orientation == "horizontal",
+                "translate-x-full":
+                    hover == false && props.orientation == "horizontal",
+            }),
         }),
         indicators: {
             className: classNames(
@@ -137,7 +132,7 @@ const MultiCarousel = ({
         },
     ];
 
-    const Header: React.FC<IHeaderProps> = ({ header }) => {
+    const Header = () => {
         return (
             <div className="flex flex-row items-center gap-4 text-xl font-bold tracking-wide">
                 {header}
@@ -160,8 +155,6 @@ const MultiCarousel = ({
             </div>
         );
     };
-
-    const skeletonArr = Array.from(Array(numVisible).keys());
 
     if (isLoading) {
         return (
@@ -187,7 +180,7 @@ const MultiCarousel = ({
     return (
         <Carousel
             value={value}
-            header={<Header header={header} />}
+            header={header ? Header() : undefined}
             numScroll={numScroll}
             numVisible={numVisible}
             showNavigators={showNavigators}

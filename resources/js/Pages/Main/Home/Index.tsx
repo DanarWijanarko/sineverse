@@ -1,25 +1,27 @@
-import { Head, Link } from "@inertiajs/react";
-
-import { useTrending } from "@/Hooks/Api/useTrending";
 import { PageProps } from "@/Types";
-
-import DefaultCarousel from "@/Components/Carousel/DefaultCarousel";
-import SingleCarousel from "@/Components/Carousel/SingleCarousel";
-import { ucFirst } from "@/Services/Utils/Format/string/ucFirst";
-import MultiCarousel from "@/Components/Carousel/MultiCarousel";
-import { useDiscoverMovies, useDiscoverSeries } from "@/Hooks/Api/useDiscover";
-import CinemaCard from "@/Components/Cards/CinemaCard";
-import GenreIcon from "@/Components/Icons/GenreIcon";
-import StarIcon from "@/Components/Icons/StarIcon";
-import MainLayout from "@/Layouts/MainLayout";
+import { Head, Link } from "@inertiajs/react";
 import React, { useEffect, useState } from "react";
+
+import { useDiscoverMovies, useDiscoverSeries } from "@/Hooks/Api/useDiscover";
+import { useTrending } from "@/Hooks/Api/useTrending";
+
 import { dateLong } from "@/Services/Utils/Format/dates/dateLong";
 import { dateYear } from "@/Services/Utils/Format/dates/dateYear";
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import SecondaryButton from "@/Components/Buttons/SecondaryButton";
+import { ucFirst } from "@/Services/Utils/Format/string/ucFirst";
 import { dateWeek } from "@/Services/Utils/Generate/dateWeek";
-import PlayIcon from "@/Components/Icons/PlayIcon";
+
+import DefaultCarousel from "@/Components/Carousel/DefaultCarousel";
+import SecondaryButton from "@/Components/Buttons/SecondaryButton";
+import SingleCarousel from "@/Components/Carousel/SingleCarousel";
+import MultiCarousel from "@/Components/Carousel/MultiCarousel";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import CinemaCard from "@/Components/Cards/CinemaCard";
+import MainLayout from "@/Layouts/MainLayout";
+
 import BookmarkIcon from "@/Components/Icons/BookmarkIcon";
+import GenreIcon from "@/Components/Icons/GenreIcon";
+import PlayIcon from "@/Components/Icons/PlayIcon";
+import StarIcon from "@/Components/Icons/StarIcon";
 
 const Index = ({ auth, flash_message }: PageProps) => {
     const [featured, setFeatured] = useState<ICinemas | undefined>();
@@ -63,12 +65,123 @@ const Index = ({ auth, flash_message }: PageProps) => {
             region: "ID",
             sort_by: "popularity.desc",
             release_date_from: dateWeek("now"),
-            release_date_to: dateWeek("next"),
+            release_date_to: dateWeek("next", 3),
             with_release_type: "2|3",
         },
         ["upcomingMovies"],
         20
     );
+    const nowPlayingMovies = useDiscoverMovies(
+        {
+            page: 1,
+            region: "ID",
+            sort_by: "popularity.desc",
+            release_date_from: dateWeek("prev", 1),
+            release_date_to: dateWeek("now"),
+            with_release_type: "2|3",
+        },
+        ["nowPlayingMovies"],
+        20
+    );
+    const nowPlayingSeries = useDiscoverSeries(
+        {
+            page: 1,
+            timezone: "Asia/Jakarta",
+            sort_by: "popularity.desc",
+            air_date_from: dateWeek("prev", 1),
+            air_date_to: dateWeek("now"),
+            with_type: 4,
+        },
+        ["nowPlayingSeries"],
+        20
+    );
+
+    const trendingDayTemplate = (data: ICinemas) => {
+        return (
+            <div key={data.id} className="relative h-[800px] w-full">
+                <span className="absolute left-0 z-10 top-0 w-full h-full bg-black-800 bg-opacity-50" />
+                <span className="absolute left-0 z-10 bottom-0 w-full h-1/2 bg-gradient-to-t from-black-800 to-transparent" />
+
+                {/* Image Backdrop */}
+                <img
+                    src={data.backdrop}
+                    alt={data.title}
+                    className="w-full h-full absolute left-0 top-0 z-0 object-cover"
+                />
+
+                {/* Details */}
+                <div className="absolute bottom-24 z-20 left-20">
+                    {/* Media Type */}
+                    <p className="bg-black-800 w-fit px-3 py-1 mb-6 rounded-full text-sm font-bold">
+                        {ucFirst(data.media_type)}
+                    </p>
+
+                    {/* Title */}
+                    <Link
+                        href={"#"}
+                        className="font-extrabold text-3xl hover:opacity-80 transition-all"
+                    >
+                        {data.title}
+                    </Link>
+
+                    {/* Rating, Release Date, Original Language, Genres */}
+                    <div className="pb-3 pt-2 flex flex-row gap-1.5 items-center">
+                        {/* Ratings */}
+                        <p className="text-gray text-sm flex justify-center items-center gap-0.5">
+                            <StarIcon className="w-5 h-5 text-yellow" />
+                            {data.vote_average}
+                        </p>
+
+                        <span className="w-1 h-1 bg-gray rounded-full" />
+
+                        {/* Release Date */}
+                        <p className="text-gray text-sm">
+                            {dateLong(data.release_date)}
+                        </p>
+
+                        <span className="w-1 h-1 bg-gray rounded-full" />
+
+                        {/* Original Language */}
+                        <p className="text-gray text-sm">
+                            {data.original_language}
+                        </p>
+
+                        <span className="w-1 h-1 bg-gray rounded-full" />
+
+                        {/* Genres */}
+                        {data.genres.map((genre, i) => (
+                            <React.Fragment key={i}>
+                                <p className="text-gray text-sm">{genre}</p>
+                                {i !== data.genres.length - 1 && (
+                                    <span className="w-1 h-1 bg-gray rounded-full" />
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    {/* Overview */}
+                    <p className="w-[600px] mb-9 line-clamp-5 font-medium text-sm">
+                        {data.overview}
+                    </p>
+
+                    {/* Buttons */}
+                    <div className="flex flex-row gap-2.5 items-end">
+                        {/* Watch Trailer */}
+                        <PrimaryButton className="text-lg">
+                            <PlayIcon className="w-5 h-5 -mt-0.5" />
+                            Watch Trailer
+                        </PrimaryButton>
+
+                        {/* Add Watchlist */}
+                        <SecondaryButton className="text-lg">
+                            <BookmarkIcon className="w-5 h-5 -mt-0.5" />
+                            Add Watchlist
+                        </SecondaryButton>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const koreanSeriesTemplate = (data: ICinemas) => {
         return (
@@ -161,11 +274,11 @@ const Index = ({ auth, flash_message }: PageProps) => {
                 <img
                     src={data.backdrop}
                     alt={data.title}
-                    className="h-96 w-full object-cover"
+                    className="h-full w-full object-cover"
                 />
 
                 {/* Release Date */}
-                <div className="border border-gray w-fit rounded-full px-2 py-1">
+                <div className="mt-5 border border-gray w-fit rounded-full px-2 py-1">
                     <p className="text-gray text-xs font-medium">
                         {dateLong(data.release_date)}
                     </p>
@@ -174,13 +287,13 @@ const Index = ({ auth, flash_message }: PageProps) => {
                 {/* Title */}
                 <Link
                     href="#"
-                    className="font-black text-3xl line-clamp-1 transition-all duration-300 hover:opacity-80 hover:underline-offset-4 hover:underline"
+                    className="mt-3 font-black text-3xl line-clamp-1 transition-all duration-300 hover:opacity-80 hover:underline-offset-4 hover:underline"
                 >
                     {data.title}
                 </Link>
 
                 {/* Ratings, Original Language, Genres */}
-                <div className="flex flex-row gap-1.5 items-center">
+                <div className="mt-1 flex flex-row gap-1.5 items-center">
                     {/* Ratings */}
                     <span className="flex justify-center items-center gap-0.5">
                         <StarIcon className="w-4 h-4 text-yellow" />
@@ -208,12 +321,12 @@ const Index = ({ auth, flash_message }: PageProps) => {
                 </div>
 
                 {/* Overview */}
-                <p className="line-clamp-5 font-medium text-sm tracking-[0.3px]">
+                <p className="mt-2 line-clamp-5 font-medium text-sm tracking-[0.3px]">
                     {data.overview}
                 </p>
 
                 {/* Buttons */}
-                <div className="flex flex-row gap-2.5 items-end">
+                <div className="mt-5 flex flex-row gap-2.5 items-end">
                     {/* Watch Trailer */}
                     <PrimaryButton className="text-lg">
                         <PlayIcon className="w-5 h-5 -mt-0.5" />
@@ -230,11 +343,79 @@ const Index = ({ auth, flash_message }: PageProps) => {
         );
     };
 
+    const nowPlayingTemplate = (data: ICinemas) => {
+        return (
+            <Link
+                href="#"
+                className="flex flex-row items-center gap-3 transition-all duration-500 hover:opacity-80"
+            >
+                {/* Poster */}
+                <img
+                    src={data.poster}
+                    alt={data.title}
+                    className="w-[84px] h-[125px] object-cover rounded-xl"
+                />
+
+                {/* Detail */}
+                <div className="flex flex-col justify-center gap-1">
+                    {/* Original Language */}
+                    <div className="border border-gray w-fit rounded-full px-2 py-1">
+                        <p className="text-gray text-xs font-medium">
+                            {data.original_language}
+                        </p>
+                    </div>
+
+                    {/* Title */}
+                    <h1 className="text-lg line-clamp-1 font-black">
+                        {data.title}
+                    </h1>
+
+                    {/* Genres */}
+                    <div className="flex items-center gap-1 text-gray max-w-full">
+                        <GenreIcon className="w-5 h-5" />
+                        {data.genres.slice(0, 2).map((genre, index) => (
+                            <React.Fragment key={index}>
+                                <p
+                                    className={`text-gray text-sm whitespace-nowrap ${
+                                        index ==
+                                            data.genres.slice(0, 2).length -
+                                                1 && "truncate max-w-[70px]"
+                                    }`}
+                                >
+                                    {genre}
+                                </p>
+                                {index !==
+                                    data.genres.slice(0, 2).length - 1 && (
+                                    <span className="w-1 h-1 bg-gray rounded-full" />
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    {/* Ratings & Release Year */}
+                    <div className="flex items-center gap-1 text-gray">
+                        {/* Ratings */}
+                        <span className="flex justify-center items-center gap-0.5">
+                            <StarIcon className="w-4 h-4 text-yellow" />
+                            <p className="text-gray text-sm">
+                                {data.vote_average || 0}
+                            </p>
+                        </span>
+
+                        <span className="w-1 h-1 bg-gray rounded-full" />
+
+                        <p className="text-gray text-sm font-medium">
+                            {dateYear(data.release_date)}
+                        </p>
+                    </div>
+                </div>
+            </Link>
+        );
+    };
+
     useEffect(() => {
         setFeatured(koreanSeries.data?.results[0]);
     }, [koreanSeries.isPending == false]);
-
-    console.log(upcomingMovies.data?.results);
 
     return (
         <MainLayout>
@@ -244,6 +425,12 @@ const Index = ({ auth, flash_message }: PageProps) => {
             <SingleCarousel
                 value={trendingDay.data}
                 isLoading={trendingDay.isPending}
+                numScroll={1}
+                numVisible={1}
+                showNavigators={false}
+                showIndicators={true}
+                autoplayInterval={5000}
+                itemTemplate={trendingDayTemplate}
             />
 
             {/* Korean Series */}
@@ -262,7 +449,7 @@ const Index = ({ auth, flash_message }: PageProps) => {
 
             {/* Trending Week */}
             <DefaultCarousel
-                className="mt-16 mx-[74px]"
+                className="mt-16"
                 value={trendingWeek.data}
                 header="Popular of the week"
                 isLoading={trendingWeek.isPending}
@@ -385,8 +572,8 @@ const Index = ({ auth, flash_message }: PageProps) => {
                 value={movies.data?.results}
                 header="Movies"
                 isLoading={movies.isPending}
-                numScroll={2}
-                numVisible={4}
+                numScroll={3}
+                numVisible={5}
                 orientation="horizontal"
                 showNavigators={true}
                 showIndicators={true}
@@ -401,8 +588,8 @@ const Index = ({ auth, flash_message }: PageProps) => {
                 value={series.data?.results}
                 header="Series"
                 isLoading={series.isPending}
-                numScroll={2}
-                numVisible={4}
+                numScroll={3}
+                numVisible={5}
                 orientation="horizontal"
                 showNavigators={true}
                 showIndicators={true}
@@ -414,15 +601,13 @@ const Index = ({ auth, flash_message }: PageProps) => {
             {/* Upcoming Movies & Now Playing */}
             <section className="w-full mt-16 px-20 grid grid-cols-12 gap-5">
                 {/* Upcoming Movies */}
-                <div className="relative col-span-6 bg-red">
-                    <MultiCarousel
+                <div className="relative col-span-6">
+                    <SingleCarousel
                         value={upcomingMovies.data?.results}
                         header="Upcoming Movies in Indonesia"
                         isLoading={upcomingMovies.isPending}
                         numScroll={1}
                         numVisible={1}
-                        orientation="vertical"
-                        verticalViewPortHeight="700px"
                         showNavigators={true}
                         showIndicators={false}
                         itemTemplate={upcomingMoviesTemplate}
@@ -430,7 +615,45 @@ const Index = ({ auth, flash_message }: PageProps) => {
                 </div>
 
                 {/* Now Playing */}
-                <div className="relative col-span-6"></div>
+                <div className="relative col-span-6">
+                    <h1 className="text-xl font-bold tracking-wide">
+                        Now Playing
+                    </h1>
+
+                    <div className="mt-2 grid grid-cols-6 gap-5">
+                        {/* Movies */}
+                        <div className="relative col-span-3">
+                            <MultiCarousel
+                                value={nowPlayingMovies.data?.results}
+                                header="Movies"
+                                isLoading={nowPlayingMovies.isPending}
+                                numScroll={3}
+                                numVisible={5}
+                                orientation="vertical"
+                                verticalViewPortHeight="700px"
+                                showNavigators={true}
+                                showIndicators={false}
+                                itemTemplate={nowPlayingTemplate}
+                            />
+                        </div>
+
+                        {/* Series */}
+                        <div className="relative col-span-3">
+                            <MultiCarousel
+                                value={nowPlayingSeries.data?.results}
+                                header="Series"
+                                isLoading={nowPlayingSeries.isPending}
+                                numScroll={3}
+                                numVisible={5}
+                                orientation="vertical"
+                                verticalViewPortHeight="700px"
+                                showNavigators={true}
+                                showIndicators={false}
+                                itemTemplate={nowPlayingTemplate}
+                            />
+                        </div>
+                    </div>
+                </div>
             </section>
         </MainLayout>
     );

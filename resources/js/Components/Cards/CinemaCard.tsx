@@ -16,7 +16,7 @@ const CinemaCard = ({ data, href, className }: ICinemaCard) => {
             href={href}
             className={classNames(
                 className,
-                "flex flex-col gap-2 w-[346px] transition-all duration-300 hover:opacity-70"
+                "flex flex-col gap-2 w-full transition-all duration-300 hover:opacity-70"
             )}
         >
             <img src={data.backdrop} alt={data.title} className="rounded-lg" />

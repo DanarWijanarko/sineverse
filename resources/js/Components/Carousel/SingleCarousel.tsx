@@ -2,28 +2,72 @@ import {
     Carousel,
     CarouselPassThroughMethodOptions,
 } from "primereact/carousel";
-import React from "react";
+import React, { ReactNode, useState } from "react";
 import { Link } from "@inertiajs/react";
 import { Image } from "primereact/image";
 import { classNames } from "primereact/utils";
 
+import { dateLong } from "@/Services/Utils/Format/dates/dateLong";
 import { ucFirst } from "@/Services/Utils/Format/string/ucFirst";
+
 import SecondaryButton from "../Buttons/SecondaryButton";
 import PrimaryButton from "../Buttons/PrimaryButton";
-import StarIcon from "../Icons/StarIcon";
 import Skeleton from "../Common/Skeleton";
-import { dateLong } from "@/Services/Utils/Format/dates/dateLong";
-import CarouselIcon from "../Icons/CarouselIcon";
 
+import CarouselIcon from "../Icons/CarouselIcon";
+import BookmarkIcon from "../Icons/BookmarkIcon";
+import StarIcon from "../Icons/StarIcon";
+import PlayIcon from "../Icons/PlayIcon";
+import ChevronIcon from "../Icons/ChevronIcon";
+
+// ! Working to Dynamic
 interface ISingleCarousel {
+    className?: string | undefined;
     value: Array<ICinemas> | undefined;
+    header?: string | undefined;
     isLoading: boolean;
+    numScroll: number;
+    numVisible: number;
+    showNavigators: boolean;
+    showIndicators: boolean;
+    autoplayInterval?: number | undefined;
+    itemTemplate: (item: ICinemas) => ReactNode;
 }
 
-const SingleCarousel = ({ value, isLoading }: ISingleCarousel) => {
+const SingleCarousel = ({
+    value,
+    isLoading,
+    className,
+    header,
+    numScroll,
+    numVisible,
+    showNavigators,
+    showIndicators,
+    autoplayInterval,
+    itemTemplate,
+}: ISingleCarousel) => {
+    const [hover, setHover] = useState<boolean>(false);
+
     const passThroughOptions = {
         root: {
-            className: "relative",
+            className: classNames(className, "relative flex flex-col gap-2"),
+        },
+        header: {
+            className: classNames({ "mx-1.5": className !== undefined }),
+        },
+        previousButton: {
+            className: classNames(
+                "absolute top-0 right-9",
+                "opacity-100 disabled:opacity-80",
+                "transition-all duration-500"
+            ),
+        },
+        nextButton: {
+            className: classNames(
+                "absolute top-0 right-0",
+                "opacity-100 disabled:opacity-80",
+                "transition-all duration-500"
+            ),
         },
         indicators: {
             className:
@@ -40,117 +84,26 @@ const SingleCarousel = ({ value, isLoading }: ISingleCarousel) => {
         }),
     };
 
-    const itemTemplate = (data: ICinemas) => {
+    const Header = () => {
         return (
-            <div key={data.id} className="relative h-[800px] w-full">
-                <span className="absolute left-0 z-10 top-0 w-full h-full bg-black-800 bg-opacity-50" />
-                <span className="absolute left-0 z-10 bottom-0 w-full h-1/2 bg-gradient-to-t from-black-800 to-transparent" />
-
-                {/* Image Backdrop */}
-                <Image
-                    src={data.backdrop}
-                    alt={data.title}
-                    imageClassName="w-full h-full absolute left-0 top-0 z-0 object-cover"
-                />
-
-                {/* Details */}
-                <div className="absolute bottom-24 z-20 left-20">
-                    {/* Media Type */}
-                    <p className="bg-black-800 w-fit px-3 py-1 mb-6 rounded-full text-sm font-bold">
-                        {ucFirst(data.media_type)}
-                    </p>
-
-                    {/* Title */}
-                    <Link
-                        href={"#"}
-                        className="font-extrabold text-3xl hover:opacity-80 transition-all"
-                    >
-                        {data.title}
-                    </Link>
-
-                    {/* Rating, Release Date, Original Language, Genres */}
-                    <div className="pb-3 pt-2 flex flex-row gap-1.5 items-center">
-                        {/* Ratings */}
-                        <p className="text-gray text-sm flex justify-center items-center gap-0.5">
-                            <StarIcon className="w-5 h-5 text-yellow" />
-                            {data.vote_average}
-                        </p>
-
-                        <span className="w-1 h-1 bg-gray rounded-full" />
-
-                        {/* Release Date */}
-                        <p className="text-gray text-sm">
-                            {dateLong(data.release_date)}
-                        </p>
-
-                        <span className="w-1 h-1 bg-gray rounded-full" />
-
-                        {/* Original Language */}
-                        <p className="text-gray text-sm">
-                            {data.original_language}
-                        </p>
-
-                        <span className="w-1 h-1 bg-gray rounded-full" />
-
-                        {/* Genres */}
-                        {data.genres.map((genre, i) => (
-                            <React.Fragment key={i}>
-                                <p className="text-gray text-sm">{genre}</p>
-                                {i !== data.genres.length - 1 && (
-                                    <span className="w-1 h-1 bg-gray rounded-full" />
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </div>
-
-                    {/* Overview */}
-                    <p className="w-[600px] mb-9 line-clamp-5 font-medium text-sm">
-                        {data.overview}
-                    </p>
-
-                    {/* Buttons */}
-                    <div className="flex flex-row gap-2.5 items-end">
-                        {/* Watch Trailer */}
-                        <PrimaryButton className="text-lg">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                                className="h-5 w-5 -mt-0.5"
-                            >
-                                <path
-                                    stroke="none"
-                                    d="M0 0h24v24H0z"
-                                    fill="none"
-                                />
-                                <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z" />
-                            </svg>
-                            Watch Trailer
-                        </PrimaryButton>
-
-                        {/* Add Watchlist */}
-                        <SecondaryButton className="text-lg">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={3}
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="h-5 w-5"
-                            >
-                                <path
-                                    stroke="none"
-                                    d="M0 0h24v24H0z"
-                                    fill="none"
-                                />
-                                <path d="M18 7v14l-6 -4l-6 4v-14a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4z" />
-                            </svg>
-                            Add Watchlist
-                        </SecondaryButton>
-                    </div>
-                </div>
+            <div className="flex flex-row items-center gap-4 text-xl font-bold tracking-wide">
+                {header}
+                <Link
+                    href="#"
+                    className={classNames(
+                        "flex flex-row items-center gap-0.5 mt-1",
+                        "text-sm text-gray hover:text-green",
+                        "transition-all duration-500",
+                        {
+                            "opacity-0": !hover,
+                            "opacity-100": hover,
+                        }
+                    )}
+                    disabled={hover}
+                >
+                    See More
+                    <ChevronIcon className="mt-[2.3px] w-4 h-4" type="right" />
+                </Link>
             </div>
         );
     };
@@ -166,15 +119,18 @@ const SingleCarousel = ({ value, isLoading }: ISingleCarousel) => {
     return (
         <Carousel
             value={value}
-            numScroll={1}
-            numVisible={1}
-            showNavigators={false}
-            showIndicators={true}
-            autoplayInterval={5000}
-            circular={true}
+            header={header ? Header() : undefined}
+            numScroll={numScroll}
+            numVisible={numVisible}
+            showNavigators={showNavigators}
+            showIndicators={showIndicators}
+            autoplayInterval={autoplayInterval}
+            circular={autoplayInterval ? true : false}
             itemTemplate={itemTemplate}
             prevIcon={CarouselIcon("prev")}
             nextIcon={CarouselIcon("next")}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
             pt={passThroughOptions}
         />
     );
