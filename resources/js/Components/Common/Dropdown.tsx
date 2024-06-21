@@ -60,7 +60,7 @@ const Trigger = ({
     return (
         <button
             className={classNames(
-                "transition-all",
+                "transition-all z-0",
                 { "opacity-85": isOpen },
                 className
             )}
@@ -77,7 +77,7 @@ const Content = ({
     className,
     children,
 }: PropsWithChildren<{
-    align?: "left" | "right";
+    align?: "left" | "right" | "endRight";
     spaceContent?: string;
     className?: string;
 }>) => {
@@ -89,6 +89,8 @@ const Content = ({
         alignmentClasses = "origin-top-left start-1";
     } else if (align === "right") {
         alignmentClasses = "origin-top-right end-0";
+    } else if (align === "endRight") {
+        alignmentClasses = "origin-top-right -top-[50%] start-[102%]";
     }
 
     return (

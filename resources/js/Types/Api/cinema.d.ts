@@ -20,8 +20,8 @@ interface IMoviesParams {
     with_genres?: string | undefined;
     with_original_language?: string | undefined;
     with_release_type?: string | undefined;
-    with_runtime_from?: string | undefined;
-    with_runtime_to?: string | undefined;
+    with_runtime_from?: number | undefined;
+    with_runtime_to?: number | undefined;
     with_watch_providers?: string | undefined;
 }
 

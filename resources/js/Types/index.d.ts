@@ -19,6 +19,5 @@ export type PageProps<
     };
     flash_message: IFlashMessage;
     errors: Errors & ErrorBag;
+    media_type: "movie" | "tv";
 };
-
-

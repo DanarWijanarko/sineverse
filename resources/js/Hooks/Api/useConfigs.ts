@@ -49,3 +49,42 @@ export const useCountries = (
         },
     });
 };
+
+export const useLanguages = (
+    queryKey: Array<string>
+): UseQueryResult<Array<ILanguages>> => {
+    return useQuery({
+        queryKey,
+        queryFn: async () => {
+            try {
+                const response = await tmdbInstance.get(
+                    "/configuration/languages"
+                );
+
+                return response.data;
+            } catch (e) {
+                throw console.log(e);
+            }
+        },
+    });
+};
+
+export const useGenres = (
+    queryKey: Array<string>,
+    media_type: "movie" | "tv"
+): UseQueryResult<Array<IGenres>> => {
+    return useQuery({
+        queryKey,
+        queryFn: async () => {
+            try {
+                const response = await tmdbInstance.get(
+                    `/genre/${media_type}/list`
+                );
+
+                return response.data.genres;
+            } catch (e) {
+                throw console.log(e);
+            }
+        },
+    });
+};

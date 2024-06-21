@@ -4,7 +4,7 @@ import { UseQueryResult, useQuery } from "@tanstack/react-query";
 
 export const useDiscoverMovies = (
     params: IMoviesParams,
-    queryKey: Array<string>,
+    queryKey: Array<string | number>,
     limit: number = 20,
     enabled: boolean = true
 ): UseQueryResult<ICinemasResults> => {
@@ -48,7 +48,7 @@ export const useDiscoverMovies = (
 
 export const useDiscoverSeries = (
     params: ISeriesParams,
-    queryKey: Array<string>,
+    queryKey: Array<string | number>,
     limit: number = 20,
     enabled: boolean = true
 ): UseQueryResult<ICinemasResults> => {

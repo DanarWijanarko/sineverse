@@ -17,7 +17,7 @@ Route::name('main.')->group(function () {
 
     // ! Movies
     Route::get('/movies', function () {
-        return inertia('Main/Home/Index');
+        return inertia('Main/Movies/Index');
     })->name('movies.index');
     // Route::prefix('/movies')->name('movies.')->group(function () {
     //     Route::get('/', [MovieController::class, 'index'])->name('index');
@@ -30,7 +30,7 @@ Route::name('main.')->group(function () {
 
     // ! Series
     Route::get('/series', function () {
-        return inertia('Main/Home/Index');
+        return inertia('Main/Series/Index');
     })->name('series.index');
     // Route::prefix('/series')->name('series.')->group(function () {
     //     Route::get('/', [SeriesController::class, 'index'])->name('index');

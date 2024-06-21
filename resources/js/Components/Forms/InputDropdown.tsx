@@ -120,6 +120,16 @@ const InputDropdown = ({
         // },
     };
 
+    const virtualScrollerOptions = {
+        itemSize: 35,
+        autoSize: false,
+        scrollHeight: "200px",
+        className: classNames(
+            "h-[200px] w-full overflow-auto",
+            "bg-black-900 border border-black-700 rounded-b-lg"
+        ),
+    };
+
     return (
         <Dropdown
             value={value}
@@ -136,15 +146,7 @@ const InputDropdown = ({
             itemTemplate={itemTemplate}
             className={className}
             pt={passThroughOptions}
-            virtualScrollerOptions={{
-                itemSize: 35,
-                autoSize: false,
-                scrollHeight: "200px",
-                className: classNames(
-                    "h-[200px] w-full overflow-auto",
-                    "bg-black-900 border border-black-700 rounded-b-lg"
-                ),
-            }}
+            virtualScrollerOptions={virtualScrollerOptions}
         />
     );
 };
