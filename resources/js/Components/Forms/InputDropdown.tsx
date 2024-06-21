@@ -48,7 +48,7 @@ const InputDropdown = ({
 			className: classNames(
 				"cursor-pointer block flex flex-auto overflow-hidden overflow-ellipsis whitespace-nowrap relative",
 				"border-0",
-				"px-4 py-2 transition duration-200 bg-transparent rounded appearance-nones",
+				"px-4 pt-1.5 pb-2 transition duration-200 bg-transparent rounded appearance-nones",
 				"focus:outline-none focus:shadow-none",
 			),
 		},
@@ -66,12 +66,6 @@ const InputDropdown = ({
 				"p-2 border-t border-x border-black-700 bg-black-900 mt-2 rounded-t-lg",
 			),
 		},
-		// wrapper: {
-		//     className: classNames(
-		//         "h-[200px] w-full overflow-auto",
-		//         "bg-black-900 text-white border border-black-700 rounded-b-lg shadow-lg"
-		//     ),
-		// },
 		list: {
 			className: "py-2 list-none m-0",
 		},

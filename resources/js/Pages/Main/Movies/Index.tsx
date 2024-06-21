@@ -1,29 +1,43 @@
-import AccordionMenu from "@/Components/Common/AccordionMenu";
-import Dropdown from "@/Components/Common/Dropdown";
-import Skeleton from "@/Components/Common/Skeleton";
-import CustomTooltip from "@/Components/Common/Tooltip";
-import Checkbox from "@/Components/Forms/Checkbox";
-import InputDropdown from "@/Components/Forms/InputDropdown";
-import ChecklistIcon from "@/Components/Icons/ChecklistIcon";
-import ChevronIcon from "@/Components/Icons/ChevronIcon";
-import { useCountries, useGenres, useLanguages, useWatchProviders } from "@/Hooks/Api/useConfigs";
-import { useDiscoverMovies } from "@/Hooks/Api/useDiscover";
-import { useMultiState } from "@/Hooks/useMultiState";
-import MainLayout from "@/Layouts/MainLayout";
-import { moviesTypeOptions } from "@/Services/Constants/moviesTypeOptions";
-import { selectReleaseDateOption } from "@/Services/Constants/releaseDateOptions";
-import { sortByMoviesOptions } from "@/Services/Constants/sortByMoviesOptions";
-import { handleMultiSelect } from "@/Services/Utils/handleMultiSelect";
+import { Fragment, MouseEventHandler } from "react";
 import { PageProps } from "@/Types";
+import { classNames } from "primereact/utils";
 import { Head, usePage } from "@inertiajs/react";
 import { AccordionTab } from "primereact/accordion";
 import { DropdownProps } from "primereact/dropdown";
-import React, { Fragment } from "react";
+
+import { useCountries, useGenres, useLanguages, useWatchProviders } from "@/Hooks/Api/useConfigs";
+import { useDiscoverMovies } from "@/Hooks/Api/useDiscover";
+import { useMultiState } from "@/Hooks/useMultiState";
+
+import {
+	releaseDateOptions,
+	selectReleaseDateOption,
+} from "@/Services/Constants/releaseDateOptions";
+import { handleMultiSelect } from "@/Services/Utils/handleMultiSelect";
+import { moviesTypeOptions } from "@/Services/Constants/moviesTypeOptions";
+import { sortByMoviesOptions } from "@/Services/Constants/sortByMoviesOptions";
+
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import AccordionMenu from "@/Components/Common/AccordionMenu";
+import InputDropdown from "@/Components/Forms/InputDropdown";
+import ChecklistIcon from "@/Components/Icons/ChecklistIcon";
+import ChevronIcon from "@/Components/Icons/ChevronIcon";
+import CustomTooltip from "@/Components/Common/Tooltip";
+import Pagination from "@/Components/Common/Pagination";
+import DateSelect from "@/Components/Common/DateSelect";
+import CinemaCard from "@/Components/Cards/CinemaCard";
+import CustomSlider from "@/Components/Forms/Slider";
+import Skeleton from "@/Components/Common/Skeleton";
+import Dropdown from "@/Components/Common/Dropdown";
+import MenuIcon from "@/Components/Icons/MenuIcon";
+import Checkbox from "@/Components/Forms/Checkbox";
+import MainLayout from "@/Layouts/MainLayout";
 
 const Index = () => {
 	const { media_type } = usePage<PageProps>().props;
 
-	const { data, setData, reset } = useMultiState({
+	// ? Default Value of Filters
+	const { data, setData, reset } = useMultiState<IFilterParams>({
 		page: 1,
 		sort_by: sortByMoviesOptions[0].types[0],
 		region: {
@@ -39,16 +53,13 @@ const Index = () => {
 			native_name: "Indonesia",
 		},
 		with_genres: [],
-		with_original_language: {
-			iso_639_1: undefined,
-			english_name: undefined,
-			name: undefined,
-		},
+		with_original_language: undefined,
 		with_release_type: moviesTypeOptions.map((res) => res.value),
 		with_runtime: [0, 400],
-		with_watch_providers: [] as Array<any>,
+		with_watch_providers: [],
 	});
 
+	// ? Configs for Filters
 	const countriesConfig = useCountries(["countries"]);
 	const languagesConfig = useLanguages(["languages"]);
 	const genresConfig = useGenres(["genres"], media_type);
@@ -59,8 +70,8 @@ const Index = () => {
 		!!data.watch_region,
 	);
 
+	// ? Movies Results
 	const selectReleaseDate = selectReleaseDateOption(data.release_date_options, data.release_date);
-
 	const movies = useDiscoverMovies(
 		{
 			page: data.page,
@@ -72,21 +83,30 @@ const Index = () => {
 			release_date_to: selectReleaseDate.release_to,
 			watch_region: data.watch_region.iso_3166_1,
 			with_genres: data.with_genres.join(","),
-			with_original_language: data.with_original_language.iso_639_1,
+			with_original_language: data.with_original_language?.iso_639_1,
 			with_release_type: data.with_release_type.join("|"),
-			with_runtime_from: data.with_runtime[0],
-			with_runtime_to: data.with_runtime[1],
+			with_runtime_from: Array.isArray(data.with_runtime) ? data.with_runtime[0] : undefined,
+			with_runtime_to: Array.isArray(data.with_runtime) ? data.with_runtime[1] : undefined,
 			with_watch_providers: data.with_watch_providers.join("|"),
 		},
 		["movies", data.page],
 		20,
 	);
 
-	// console.log(movies.data?.results);
+	const handleFilterFormReset = (e: any): void => {
+		e.preventDefault();
+		reset();
+		setTimeout(() => {
+			movies.refetch();
+		}, 100);
+	};
 
-	// console.log(data.with_watch_providers);
+	const handleFilterFormSubmit = (e: any): void => {
+		e.preventDefault();
+		movies.refetch();
+	};
 
-	const handleMoviesTypeOnChange = (e: any, index: any) => {
+	const handleMoviesTypeOnChange = (e: any, index: any): void => {
 		const selectedValue = moviesTypeOptions[index].value;
 		if (e.target.checked) {
 			setData("with_release_type", [...data.with_release_type, selectedValue]);
@@ -98,7 +118,7 @@ const Index = () => {
 		}
 	};
 
-	const selectedCountryTemplate = (option: ICountries, props: DropdownProps) => {
+	const countriesTemplate = (option: ICountries, props?: DropdownProps) => {
 		if (option) {
 			return (
 				<div className="flex w-40 flex-row gap-2">
@@ -110,21 +130,20 @@ const Index = () => {
 			);
 		}
 
-		return <span>{props.placeholder}</span>;
+		return <span className="mt-[3px] text-sm text-gray">{props?.placeholder}</span>;
 	};
 
-	const countryOptionTemplate = (option: ICountries) => {
-		return (
-			<div className="flex flex-row gap-2">
-				<div className="h-5 w-5">
-					<span className={`fi fi-${option.iso_3166_1.toLowerCase()}`} />
-				</div>
-				<p className="line-clamp-1">{option.english_name}</p>
-			</div>
-		);
+	const languagesTemplate = (option: ILanguages, props?: DropdownProps) => {
+		if (option) {
+			return <p className="text-base text-white">{option.english_name}</p>;
+		}
+
+		return <span className="mt-[3px] text-sm text-gray">{props?.placeholder}</span>;
 	};
 
-	const skeletonArr = Array.from(Array(24).keys());
+	const skeletonProvidersArr = Array.from(Array(24).keys());
+	const skeletonGenresArr = Array.from(Array(24).keys());
+	const skeletonResultsArr = Array.from(Array(20).keys());
 
 	return (
 		<MainLayout>
@@ -184,8 +203,8 @@ const Index = () => {
 									optionLabel="english_name"
 									placeholder="Select a Country"
 									isLoading={countriesConfig.isPending}
-									valueTemplate={selectedCountryTemplate}
-									itemTemplate={countryOptionTemplate}
+									valueTemplate={countriesTemplate}
+									itemTemplate={countriesTemplate}
 									className="mt-1.5 w-full"
 								/>
 							</div>
@@ -193,7 +212,7 @@ const Index = () => {
 							{/* List of Watch Providers based on Countries */}
 							<div className="watch-providers-scrollbar mt-3 grid max-h-[395px] grid-cols-4 gap-1.5 overflow-y-scroll pl-5 pr-4">
 								{watchProvidersConfig.isPending
-									? skeletonArr.map((_, index) => (
+									? skeletonProvidersArr.map((_, index) => (
 											<div
 												key={index}
 												className="col-span-1 h-[60.9px] w-[60.9px] rounded-lg"
@@ -249,7 +268,7 @@ const Index = () => {
 						</AccordionTab>
 
 						{/* Filters */}
-						<AccordionTab header="Filters">
+						<AccordionTab header="Filters" contentClassName="relative">
 							{/* Movies Types */}
 							<div className="flex flex-col items-start justify-center px-5">
 								{/* Header */}
@@ -270,8 +289,249 @@ const Index = () => {
 									))}
 								</div>
 							</div>
+
+							<div className="absolute left-0 right-0 mt-3.5 h-[1.15px] bg-black-700"></div>
+
+							{/* Genres */}
+							<div className="mt-7 flex w-full flex-col gap-2 px-5">
+								{/* Header */}
+								<h1 className="font-semibold text-white">Genres</h1>
+
+								{/* Content */}
+								<div className="flex flex-row flex-wrap gap-1.5">
+									{genresConfig.isPending
+										? skeletonGenresArr.map((_, index) => (
+												<Skeleton
+													key={index}
+													className="h-5 w-20 rounded-xl"
+												/>
+											))
+										: genresConfig.data?.map((genre, index) => (
+												<button
+													key={index}
+													type="button"
+													onClick={() =>
+														setData(
+															"with_genres",
+															handleMultiSelect(
+																data.with_genres,
+																genre.id,
+															),
+														)
+													}
+													className={classNames(
+														"rounded-2xl border border-black-700 bg-black-800 px-3 py-1 text-white",
+														"transition-all duration-300 hover:bg-green hover:text-white",
+														{
+															"bg-green text-white":
+																data.with_genres.includes(genre.id),
+														},
+													)}
+												>
+													<p className="-mt-0.5 text-sm font-semibold">
+														{genre.name}
+													</p>
+												</button>
+											))}
+								</div>
+							</div>
+
+							<div className="absolute left-0 right-0 mt-3.5 h-[1.15px] bg-black-700"></div>
+
+							{/* Release Date */}
+							<div className="mt-7 flex flex-col gap-1 px-5">
+								{/* Title & Menu Release Date Options */}
+								<div className="flex flex-row items-start justify-between">
+									{/* Header */}
+									<h1 className="font-semibold text-white">Release Date</h1>
+
+									{/* Menu Release Date Options */}
+									<Dropdown>
+										<Dropdown.Trigger>
+											<MenuIcon className="h-5 w-5" />
+										</Dropdown.Trigger>
+
+										<Dropdown.Content
+											spaceContent="4px"
+											className="gap-0.5 overflow-hidden bg-black-900 pb-0.5"
+										>
+											{releaseDateOptions.map((opt, index) => (
+												<Dropdown.Button
+													key={index}
+													onClick={() =>
+														setData("release_date_options", opt.value)
+													}
+													className={`w-[120px] py-1 text-sm transition-all duration-300 ${
+														data.release_date_options === opt.value
+															? "bg-green"
+															: "hover:bg-black-700"
+													}`}
+												>
+													{opt.name}
+												</Dropdown.Button>
+											))}
+										</Dropdown.Content>
+									</Dropdown>
+								</div>
+
+								{/* IF Release Date Menu Specific Region */}
+								{data.release_date_options === "specify_region" && (
+									<InputDropdown
+										value={data.region}
+										onChange={(e) => setData("region", e.value)}
+										options={countriesConfig.data}
+										optionLabel="english_name"
+										placeholder="Select a Country"
+										isLoading={countriesConfig.isPending}
+										valueTemplate={countriesTemplate}
+										itemTemplate={countriesTemplate}
+									/>
+								)}
+
+								{/* Input Date From - To */}
+								<div className="mt-1.5 flex w-full flex-col gap-2">
+									{/* Date Form */}
+									<div className="flex flex-row items-center justify-between">
+										<label
+											htmlFor="search_from"
+											className="font-semibold text-gray"
+										>
+											from
+										</label>
+										<DateSelect
+											id="search_from"
+											value={data.release_date.from}
+											onChange={(e) =>
+												setData("release_date", {
+													...data.release_date,
+													from: e.value,
+												})
+											}
+											className="w-44"
+										/>
+									</div>
+
+									{/* Date To */}
+									<div className="flex flex-row items-center justify-between">
+										<label
+											htmlFor="search_to"
+											className="font-semibold text-gray"
+										>
+											to
+										</label>
+										<DateSelect
+											id="search_to"
+											value={data.release_date.to}
+											onChange={(e) =>
+												setData("release_date", {
+													...data.release_date,
+													to: e.value,
+												})
+											}
+											className="w-44"
+										/>
+									</div>
+								</div>
+							</div>
+
+							<div className="absolute left-0 right-0 mt-3.5 h-[1.15px] bg-black-700"></div>
+
+							{/* Language */}
+							<div className="mt-7 flex flex-col gap-2 px-5">
+								{/* Header */}
+								<h1 className="font-semibold text-white">Language</h1>
+
+								{/* Content */}
+								<InputDropdown
+									value={data.with_original_language}
+									onChange={(e) => setData("with_original_language", e.value)}
+									options={languagesConfig.data}
+									optionLabel="english_name"
+									placeholder="None Selected"
+									isLoading={languagesConfig.isLoading}
+									itemTemplate={languagesTemplate}
+									valueTemplate={languagesTemplate}
+									className="w-full"
+									showClear={true}
+								/>
+							</div>
+
+							<div className="absolute left-0 right-0 mt-3.5 h-[1.15px] bg-black-700"></div>
+
+							{/* Runtime */}
+							<div className="slider mb-1 mt-7 flex flex-col gap-2 px-5">
+								{/* Header */}
+								<h1 className="font-semibold text-white">Runtime</h1>
+
+								{/* Content */}
+								<CustomSlider
+									value={data.with_runtime}
+									min={0}
+									max={400}
+									step={15}
+									range={true}
+									onChange={(e) => setData("with_runtime", e.value)}
+									tooltipTarget=".slider"
+								/>
+
+								{/* Text Helper */}
+								<div className="mt-2 flex w-full justify-between text-xs text-gray">
+									<p className="relative ml-1.5">
+										<span className="absolute bottom-full left-1/2 h-2 w-0.5 -translate-x-1/2 bg-black-700" />
+										0
+									</p>
+									<p className="relative -ml-1">
+										<span className="absolute bottom-full left-1/2 h-3 w-0.5 -translate-x-1/2 bg-black-700" />
+										190
+									</p>
+									<p className="relative mr-0.5">
+										<span className="absolute bottom-full left-1/2 h-2 w-0.5 -translate-x-1/2 bg-black-700" />
+										400
+									</p>
+								</div>
+							</div>
 						</AccordionTab>
 					</AccordionMenu>
+
+					{/* Apply & Reset Button */}
+					<div className="mt-2.5 flex w-full flex-row gap-2">
+						<PrimaryButton
+							onClick={handleFilterFormReset}
+							className="w-full border-red bg-red hover:bg-red/80"
+						>
+							Reset
+						</PrimaryButton>
+						<PrimaryButton onClick={handleFilterFormSubmit} className="w-full">
+							Apply
+						</PrimaryButton>
+					</div>
+				</div>
+
+				{/* Results of Filters or Default with no Filters Added */}
+				<div className="flex w-full flex-col">
+					{/* Movies */}
+					<div className="grid w-full grid-cols-4 gap-3">
+						{movies.isPending || movies.isRefetching
+							? skeletonResultsArr.map((_, index) => (
+									<div key={index} className="col-span-1 flex flex-col">
+										<Skeleton className="h-[160px] w-full rounded-lg" />
+										<Skeleton className="mt-1.5 h-4 w-4/5 rounded-lg" />
+										<Skeleton className="mt-1.5 h-4 w-3/4 rounded-lg" />
+									</div>
+								))
+							: movies.data?.results.map((movie, index) => (
+									<CinemaCard key={index} href="" data={movie} />
+								))}
+					</div>
+
+					{/* Pagination */}
+					<Pagination
+						currentPage={data.page}
+						isLoading={movies.isPending || movies.isRefetching}
+						limit={movies.data?.metadata.limit}
+						totalPages={movies.data?.metadata.total_pages}
+						onPageChange={(page) => setData("page", page)}
+					/>
 				</div>
 			</section>
 		</MainLayout>
