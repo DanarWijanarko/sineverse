@@ -5,11 +5,11 @@ interface IDateInterval {
 }
 
 // ? from now to Next 3 Month
-export const dateInterval = (): IDateInterval => {
+export const dateInterval = (interval: number = 2): IDateInterval => {
     var today = new Date();
     var lastMonth = new Date(
         today.getFullYear(),
-        today.getMonth() + 2,
+        today.getMonth() + interval,
         today.getDate()
     );
 
@@ -19,7 +19,7 @@ export const dateInterval = (): IDateInterval => {
         listMonth: [],
     };
 
-    for (var i = 0; i <= 2; i++) {
+    for (var i = 0; i <= interval; i++) {
         var startDate = new Date(today.getFullYear(), today.getMonth() + i, 1);
 
         var endDate = new Date(
