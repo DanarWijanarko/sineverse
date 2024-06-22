@@ -36,7 +36,7 @@ const Index = ({ auth, flash_message }: PageProps) => {
 			with_original_language: "ko",
 			first_air_date_from: new Date("2022-01-01"),
 			first_air_date_to: new Date("2023-12-31"),
-			with_type: 4,
+			with_type: "4",
 		},
 		["koreanSeries"],
 		20,
@@ -90,7 +90,7 @@ const Index = ({ auth, flash_message }: PageProps) => {
 			sort_by: "popularity.desc",
 			air_date_from: dateWeek("prev", 1),
 			air_date_to: dateWeek("now"),
-			with_type: 4,
+			with_type: "4",
 		},
 		["nowPlayingSeries"],
 		20,
@@ -118,8 +118,11 @@ const Index = ({ auth, flash_message }: PageProps) => {
 
 					{/* Title */}
 					<Link
-						href={"#"}
-						className="text-3xl font-extrabold transition-all hover:opacity-80"
+						href={route(`main.${data.media_type}.detail`, {
+							id: data.id,
+							slug: data.slug,
+						})}
+						className="text-3xl font-extrabold transition-all hover:underline hover:underline-offset-4 hover:opacity-80"
 					>
 						{data.title}
 					</Link>
@@ -181,7 +184,10 @@ const Index = ({ auth, flash_message }: PageProps) => {
 
 	const koreanSeriesTemplate = (data: ICinemas) => {
 		return (
-			<Link href="#" className="relative mx-1.5">
+			<Link
+				href={route(`main.${data.media_type}.detail`, { id: data.id, slug: data.slug })}
+				className="relative mx-1.5"
+			>
 				<img
 					src={data.poster}
 					alt={data.title}
@@ -196,7 +202,7 @@ const Index = ({ auth, flash_message }: PageProps) => {
 
 		return (
 			<Link
-				href={`#`}
+				href={route(`main.${data.media_type}.detail`, { id: data.id, slug: data.slug })}
 				className="flex items-center gap-3 transition-all duration-300 hover:opacity-80"
 			>
 				{/* Numbers */}
@@ -266,7 +272,7 @@ const Index = ({ auth, flash_message }: PageProps) => {
 
 				{/* Title */}
 				<Link
-					href="#"
+					href={route(`main.${data.media_type}.detail`, { id: data.id, slug: data.slug })}
 					className="mt-3 line-clamp-1 text-3xl font-black transition-all duration-300 hover:underline hover:underline-offset-4 hover:opacity-80"
 				>
 					{data.title}
@@ -324,7 +330,7 @@ const Index = ({ auth, flash_message }: PageProps) => {
 	const nowPlayingTemplate = (data: ICinemas) => {
 		return (
 			<Link
-				href="#"
+				href={route(`main.${data.media_type}.detail`, { id: data.id, slug: data.slug })}
 				className="flex flex-row items-center gap-3 transition-all duration-500 hover:opacity-80"
 			>
 				{/* Poster */}
@@ -460,7 +466,17 @@ const Index = ({ auth, flash_message }: PageProps) => {
 							</div>
 
 							{/* Title */}
-							<Link href="#" className="mt-5 text-3xl font-black">
+							<Link
+								href={
+									featured !== undefined
+										? route(`main.${featured?.media_type}.detail`, {
+												id: featured?.id,
+												slug: featured?.slug,
+											})
+										: "#"
+								}
+								className="mt-5 text-3xl font-black transition-all hover:underline hover:underline-offset-4"
+							>
 								{featured?.title}
 							</Link>
 
@@ -542,7 +558,14 @@ const Index = ({ auth, flash_message }: PageProps) => {
 				showNavigators={true}
 				showIndicators={true}
 				itemTemplate={(data: ICinemas) => (
-					<CinemaCard className="mx-1.5" data={data} href="#" />
+					<CinemaCard
+						className="mx-1.5"
+						href={route(`main.${data.media_type}.detail`, {
+							id: data.id,
+							slug: data.slug,
+						})}
+						data={data}
+					/>
 				)}
 			/>
 
@@ -558,7 +581,14 @@ const Index = ({ auth, flash_message }: PageProps) => {
 				showNavigators={true}
 				showIndicators={true}
 				itemTemplate={(data: ICinemas) => (
-					<CinemaCard className="mx-1.5" data={data} href="#" />
+					<CinemaCard
+						className="mx-1.5"
+						href={route(`main.${data.media_type}.detail`, {
+							id: data.id,
+							slug: data.slug,
+						})}
+						data={data}
+					/>
 				)}
 			/>
 

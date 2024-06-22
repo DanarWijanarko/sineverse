@@ -513,7 +513,14 @@ const Index = () => {
 									</div>
 								))
 							: series.data?.results.map((series, index) => (
-									<CinemaCard key={index} href="" data={series} />
+									<CinemaCard
+										key={index}
+										href={route("main.series.detail", {
+											id: series.id,
+											slug: series.slug,
+										})}
+										data={series}
+									/>
 								))}
 					</div>
 

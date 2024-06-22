@@ -13,16 +13,16 @@ import Skeleton from "../Common/Skeleton";
 
 interface IMultiCarousel {
 	className?: string | undefined;
-	value: Array<ICinemas> | undefined;
-	header: string;
+	value: Array<any> | undefined;
+	header?: string;
 	isLoading: boolean;
 	numScroll: number;
 	numVisible: number;
 	showNavigators: boolean;
 	showIndicators: boolean;
 	verticalViewPortHeight?: string;
-	itemTemplate: (item: ICinemas) => ReactNode;
-	orientation: "horizontal" | "vertical";
+	itemTemplate: (item: any) => ReactNode;
+	orientation?: "horizontal" | "vertical";
 }
 
 interface IHeaderProps {
@@ -154,11 +154,11 @@ const MultiCarousel = ({
 
 	if (isLoading) {
 		return (
-			<section className={classNames(className, "flex h-full w-full flex-col gap-2 px-20")}>
-				<Skeleton className="h-4 w-36 rounded-lg" />
-				<div className="flex h-full w-full flex-row gap-3">
+			<section className={classNames("flex h-full w-full flex-col gap-2 px-20")}>
+				{header && <Skeleton className="h-4 w-36 rounded-lg" />}
+				<div className="flex h-full w-full flex-row gap-3 overflow-hidden">
 					{skeletonArr.map((_, index) => (
-						<Skeleton key={index} className="h-[350px] w-full rounded-lg" />
+						<Skeleton key={index} className="h-[220px] w-full rounded-lg" />
 					))}
 				</div>
 			</section>
