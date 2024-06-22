@@ -1,4 +1,4 @@
-import { Fragment, MouseEventHandler } from "react";
+import { Fragment } from "react";
 import { PageProps } from "@/Types";
 import { classNames } from "primereact/utils";
 import { Head, usePage } from "@inertiajs/react";
@@ -37,7 +37,7 @@ const Index = () => {
 	const { media_type } = usePage<PageProps>().props;
 
 	// ? Default Value of Filters
-	const { data, setData, reset } = useMultiState<IFilterParams>({
+	const { data, setData, reset } = useMultiState<IFilterMoviesParams>({
 		page: 1,
 		sort_by: sortByMoviesOptions[0].types[0],
 		region: {
@@ -168,7 +168,10 @@ const Index = () => {
 									</Dropdown.Trigger>
 
 									{/* Select Sort by Options */}
-									<Dropdown.Content align="endRight" className="overflow-hidden">
+									<Dropdown.Content
+										align="endRight"
+										className="overflow-hidden bg-black-900"
+									>
 										{item.types.map((type, typeIndex) => (
 											<Dropdown.Button
 												key={typeIndex}
@@ -324,7 +327,9 @@ const Index = () => {
 														"transition-all duration-300 hover:bg-green hover:text-white",
 														{
 															"bg-green text-white":
-																data.with_genres.includes(genre.id),
+																data.with_genres.includes(
+																	genre.id as any,
+																),
 														},
 													)}
 												>
@@ -338,12 +343,12 @@ const Index = () => {
 
 							<div className="absolute left-0 right-0 mt-3.5 h-[1.15px] bg-black-700"></div>
 
-							{/* Release Date */}
+							{/* Release Dates */}
 							<div className="mt-7 flex flex-col gap-1 px-5">
 								{/* Title & Menu Release Date Options */}
 								<div className="flex flex-row items-start justify-between">
 									{/* Header */}
-									<h1 className="font-semibold text-white">Release Date</h1>
+									<h1 className="font-semibold text-white">Release Dates</h1>
 
 									{/* Menu Release Date Options */}
 									<Dropdown>

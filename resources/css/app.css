@@ -3,50 +3,24 @@
 @tailwind utilities;
 
 .watch-providers-scrollbar::-webkit-scrollbar {
-    @apply w-1;
+	@apply w-1;
 }
 
 ::-webkit-scrollbar {
-    @apply w-2 h-2;
+	@apply h-2 w-2;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-    @apply rounded-xl bg-black-700;
+	@apply rounded-xl bg-black-700;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    @apply rounded-xl bg-black-900;
+	@apply rounded-xl bg-black-900;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    @apply hover:bg-black-800;
-}
-
-.fade-enter-active {
-    animation: fadeIn 0.3s ease-in-out forwards;
-}
-
-.fade-exit-active {
-    animation: fadeOut 0.3s ease-in-out forwards;
-}
-
-@keyframes fadeIn {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
+	@apply hover:bg-black-800;
 }

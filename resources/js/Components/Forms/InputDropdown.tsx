@@ -2,12 +2,10 @@ import {
 	Dropdown,
 	DropdownChangeEvent,
 	DropdownPassThroughMethodOptions,
-	DropdownPassThroughOptions,
 	DropdownProps,
 } from "primereact/dropdown";
-import { SelectItemOptionsType } from "primereact/selectitem";
-import { classNames } from "primereact/utils";
 import React from "react";
+import { classNames } from "primereact/utils";
 
 interface InputProps {
 	value: any;
