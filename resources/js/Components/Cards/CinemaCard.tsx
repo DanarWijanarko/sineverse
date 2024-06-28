@@ -1,8 +1,10 @@
+import { Fragment } from "react";
 import { Link } from "@inertiajs/react";
-import React, { Fragment } from "react";
-import StarIcon from "../Icons/StarIcon";
-import { dateYear } from "@/Services/Utils/Format/dates/dateYear";
 import { classNames } from "primereact/utils";
+
+import { dateYear } from "@/Services/Utils/Format/dates/dateYear";
+
+import StarIcon from "../Icons/StarIcon";
 
 interface ICinemaCard {
 	data: ICinemas;

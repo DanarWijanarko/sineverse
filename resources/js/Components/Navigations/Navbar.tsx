@@ -1,5 +1,5 @@
-import { Link, usePage } from "@inertiajs/react";
-import React, { useEffect, useRef, useState } from "react";
+import { Link, useForm, usePage } from "@inertiajs/react";
+import React, { FormEventHandler, useEffect, useRef, useState } from "react";
 import NavLink from "./NavLink";
 import Dropdown from "../Common/Dropdown";
 import { ucFirst } from "@/Services/Utils/Format/string/ucFirst";
@@ -33,6 +33,14 @@ const Navbar = () => {
 	const handleScroll = (): void => {
 		const position: number = window.scrollY;
 		setScrollPosition(position);
+	};
+
+	const { data, setData, get } = useForm<{ query: string | undefined }>({ query: "" });
+
+	const handleSearchFormSubmit: FormEventHandler = (e) => {
+		e.preventDefault();
+
+		get(route("browse.search"));
 	};
 
 	useEffect(() => {
@@ -71,22 +79,31 @@ const Navbar = () => {
 			{/* Searching, Profile, Sign In & Sign Up Buttons */}
 			<div className="flex items-center gap-3">
 				{/* Search Button */}
-				<Dropdown>
-					<Dropdown.Trigger className="flex items-center justify-center hover:opacity-85">
-						<SearchIcon className="h-5 w-5" />
-					</Dropdown.Trigger>
+				{!route().current("browse.search") && (
+					<Dropdown>
+						<Dropdown.Trigger className="flex items-center justify-center hover:opacity-85">
+							<SearchIcon className="h-5 w-5" />
+						</Dropdown.Trigger>
 
-					<Dropdown.Content className="h-10 w-72" spaceContent="2">
-						<input
-							type="text"
-							id="search"
-							className="h-full w-full rounded-md border border-black-700 bg-black-900 pb-2.5 text-sm text-white shadow-none transition-all duration-300 placeholder:font-light placeholder:text-gray focus:border-white focus:ring-[0.5px] focus:ring-white"
-						/>
-						<button className="absolute right-3 top-1/2 -translate-y-1/2">
-							<SearchIcon className="h-4 w-4" />
-						</button>
-					</Dropdown.Content>
-				</Dropdown>
+						<Dropdown.Content className="h-10 w-72" spaceContent="2">
+							<form onSubmit={handleSearchFormSubmit}>
+								<input
+									type="text"
+									id="search"
+									value={data.query}
+									onChange={(e) => setData("query", e.target.value)}
+									className="h-full w-full rounded-md border border-black-700 bg-black-900 pb-2.5 text-sm text-white shadow-none transition-all duration-300 placeholder:font-light placeholder:text-gray focus:border-white focus:ring-[0.5px] focus:ring-white"
+								/>
+								<button
+									type="submit"
+									className="absolute right-3 top-1/2 -translate-y-1/2"
+								>
+									<SearchIcon className="h-4 w-4" />
+								</button>
+							</form>
+						</Dropdown.Content>
+					</Dropdown>
+				)}
 
 				{auth.user ? (
 					// * Already Signed In

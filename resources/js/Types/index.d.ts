@@ -22,4 +22,10 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
 	series_id: number;
 	movies_slug: string;
 	movies_id: number;
+	person_slug: string;
+	person_id: number;
+	network_id: number;
+	company_id: number;
+	collection_id: number;
+	query: string;
 };

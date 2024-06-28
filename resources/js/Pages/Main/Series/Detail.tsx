@@ -1,31 +1,35 @@
-import PrimaryButton from "@/Components/Buttons/PrimaryButton";
-import SecondaryButton from "@/Components/Buttons/SecondaryButton";
-import DefaultCarousel from "@/Components/Carousel/DefaultCarousel";
-import MultiCarousel from "@/Components/Carousel/MultiCarousel";
-import Dropdown from "@/Components/Common/Dropdown";
-import Skeleton from "@/Components/Common/Skeleton";
-import { TabItem, TabMenu } from "@/Components/Common/TabMenu";
-import BookmarkIcon from "@/Components/Icons/BookmarkIcon";
-import ChevronIcon from "@/Components/Icons/ChevronIcon";
-import GenreIcon from "@/Components/Icons/GenreIcon";
-import PlayIcon from "@/Components/Icons/PlayIcon";
-import StarIcon from "@/Components/Icons/StarIcon";
+import { PageProps } from "@/Types";
+import { Fragment, useEffect } from "react";
+import { Head, Link } from "@inertiajs/react";
+
 import {
 	useDetailCinema,
 	useDetailCredits,
 	useDetailMedia,
+	useDetailRecommendations,
 	useDetailSeasons,
 } from "@/Hooks/Api/useDetails";
 import { useDiscoverSeries } from "@/Hooks/Api/useDiscover";
 import { useMultiState } from "@/Hooks/useMultiState";
-import MainLayout from "@/Layouts/MainLayout";
+
 import { dateYear } from "@/Services/Utils/Format/dates/dateYear";
-import { toSlug } from "@/Services/Utils/Format/slug/toSlug";
 import { toTitle } from "@/Services/Utils/Format/slug/toTitle";
 import { ucFirst } from "@/Services/Utils/Format/string/ucFirst";
-import { PageProps } from "@/Types";
-import { Head, Link } from "@inertiajs/react";
-import React, { Fragment, useEffect } from "react";
+
+import SecondaryButton from "@/Components/Buttons/SecondaryButton";
+import MultiCarousel from "@/Components/Carousel/MultiCarousel";
+import { TabItem, TabMenu } from "@/Components/Common/TabMenu";
+import PrimaryButton from "@/Components/Buttons/PrimaryButton";
+import BookmarkIcon from "@/Components/Icons/BookmarkIcon";
+import ChevronIcon from "@/Components/Icons/ChevronIcon";
+import CinemaCard from "@/Components/Cards/CinemaCard";
+import GenreIcon from "@/Components/Icons/GenreIcon";
+import Dropdown from "@/Components/Common/Dropdown";
+import CustomImage from "@/Components/Common/Image";
+import Skeleton from "@/Components/Common/Skeleton";
+import PlayIcon from "@/Components/Icons/PlayIcon";
+import StarIcon from "@/Components/Icons/StarIcon";
+import MainLayout from "@/Layouts/MainLayout";
 
 interface IMultiState {
 	season_number: number;
@@ -79,20 +83,31 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 		!!selected.company.id || !!series.data?.production_companies,
 	);
 	const media = useDetailMedia(series_id, ["media", series_slug], media_type, !!series_id);
-
-	console.log(media.data);
+	const seriesRecommendations = useDetailRecommendations(
+		series_id,
+		["seriesRecommendation", series_slug],
+		media_type,
+		!!series_slug,
+	);
 
 	const topCastTemplate = (item: ICastResult) => {
 		return (
-			<Link href={"#"} className="mr-1 flex flex-row gap-2 text-center">
+			<Link
+				href={route("browse.person.detail", { id: item.id, slug: item.slug })}
+				className="mr-1 flex flex-row gap-2 text-center"
+			>
 				<img
 					src={item.profile}
 					alt={item.name}
 					className="h-14 w-14 rounded-full object-cover"
 				/>
 				<div className="flex flex-col items-start justify-center">
-					<h1 className="line-clamp-1 text-lg font-semibold text-white">{item.name}</h1>
-					<p className="line-clamp-1 text-sm font-medium text-gray">{item.character}</p>
+					<h1 className="line-clamp-1 text-start text-lg font-semibold text-white">
+						{item.name}
+					</h1>
+					<p className="line-clamp-1 text-start text-sm font-medium text-gray">
+						{item.character}
+					</p>
 				</div>
 			</Link>
 		);
@@ -102,7 +117,11 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 		return (
 			<Link href="" className="relative mx-1.5 overflow-hidden">
 				{/* Backdrop Image */}
-				<img src={item.backdrop} alt={item.name} className="h-[220px] w-full rounded-lg" />
+				<img
+					src={item.backdrop}
+					alt={item.name}
+					className="h-full w-full rounded-lg object-cover"
+				/>
 
 				<div className="absolute bottom-0 w-full rounded-b-lg bg-gradient-to-t from-black-900 from-40% to-black-900/0 px-3 pb-3">
 					{/* Name */}
@@ -132,10 +151,14 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 		return (
 			<Link
 				href={route(`main.${item.media_type}.detail`, { id: item.id, slug: item.slug })}
-				className="relative mx-1.5 overflow-hidden"
+				className="relative mx-1.5 max-w-[430px] overflow-hidden"
 			>
 				{/* Backdrop Image */}
-				<img src={item.backdrop} alt={item.title} className="h-[220px] w-full rounded-lg" />
+				<img
+					src={item.backdrop}
+					alt={item.title}
+					className="h-full w-full rounded-lg object-cover"
+				/>
 
 				{/* Details */}
 				<div className="absolute bottom-0 w-full rounded-b-lg bg-gradient-to-t from-black-900 from-40% to-black-900/0 px-3 pb-3">
@@ -181,6 +204,19 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 		);
 	};
 
+	const mediaTemplate = (img: string) => {
+		return (
+			<CustomImage
+				src={img}
+				width="100%"
+				height="100%"
+				className="mx-1.5"
+				imageClassName="h-full w-full"
+				preview={true}
+			/>
+		);
+	};
+
 	useEffect(() => {
 		setSelected("network", {
 			id: series.data?.networks[0].id,
@@ -194,7 +230,7 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 		});
 	}, [series.data]);
 
-	if (series.isPending) {
+	if (series.isPending || !selected.company.id || !selected.network.id) {
 		return (
 			<>
 				{/* Backdrop & Some Details */}
@@ -332,7 +368,7 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 			</section>
 
 			{/* Top Cast */}
-			<section className="mt-6 flex w-full flex-col gap-2 pl-20">
+			<section className="mt-6 flex w-full flex-col gap-2 px-20">
 				<h1 className="text-lg font-bold">Top Cast</h1>
 				<MultiCarousel
 					value={casts.data}
@@ -346,11 +382,7 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 			</section>
 
 			{/* Episodes, Networks, Companies */}
-			<TabMenu
-				rootClassName="mt-11 h-[365px]"
-				headerClassName="pl-20 text-lg"
-				activeIndex={0}
-			>
+			<TabMenu rootClassName="mt-11" headerClassName="pl-20 text-lg" activeIndex={0}>
 				<TabItem name="Episodes">
 					{/* Total Episode & Button Select Seasons */}
 					<div className="flex w-full flex-row items-center justify-between px-20 pb-5">
@@ -391,8 +423,8 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 						key={selected.season_number}
 						className="mx-[74px]"
 						value={episodes.data}
-						numScroll={3}
-						numVisible={5}
+						numScroll={2}
+						numVisible={4}
 						showIndicators={false}
 						showNavigators={true}
 						isLoading={episodes.isPending || episodes.isRefetching}
@@ -405,7 +437,10 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 					<div className="flex w-full flex-row items-center justify-between px-20 pb-5">
 						{/* Name */}
 						<Link
-							href={"#"}
+							href={route("browse.network.detail", {
+								id: selected.network.id,
+								slug: selected.network.slug,
+							})}
 							className="text-lg font-bold tracking-wider underline underline-offset-4 transition-all duration-300 hover:opacity-85"
 						>
 							{selected.network.name}
@@ -443,8 +478,8 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 						key={selected.network.id}
 						className="mx-[74px]"
 						value={seriesNetworks.data?.results}
-						numScroll={3}
-						numVisible={5}
+						numScroll={2}
+						numVisible={4}
 						showIndicators={false}
 						showNavigators={true}
 						isLoading={seriesNetworks.isPending || seriesNetworks.isRefetching}
@@ -457,7 +492,10 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 					<div className="flex w-full flex-row items-center justify-between px-20 pb-5">
 						{/* Name */}
 						<Link
-							href={"#"}
+							href={route("browse.company.detail", {
+								id: selected.company.id,
+								slug: selected.company.slug,
+							})}
 							className="text-lg font-bold tracking-wider underline underline-offset-4 transition-all duration-300 hover:opacity-85"
 						>
 							{selected.company.name}
@@ -495,8 +533,8 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 						key={selected.company.id}
 						className="mx-[74px]"
 						value={seriesCompanies.data?.results}
-						numScroll={3}
-						numVisible={5}
+						numScroll={2}
+						numVisible={4}
 						showIndicators={false}
 						showNavigators={true}
 						isLoading={seriesCompanies.isPending || seriesCompanies.isRefetching}
@@ -506,23 +544,77 @@ const Detail = ({ series_id, series_slug, media_type }: PageProps) => {
 			</TabMenu>
 
 			{/* Media */}
-			<section className="flex w-full flex-col gap-6">
+			<section className="mt-16 flex w-full flex-col gap-6">
 				{/* Header */}
 				<h1 className="mx-20 text-lg font-bold">Media</h1>
 
 				{/* Backdrops, Posters, Videos */}
-				<TabMenu
-					rootClassName="h-[206.4px] mb-12"
-					headerClassName="pl-20 text-base"
-					contentClassName="h-[206.4px]"
-					activeIndex={0}
-				>
-					<TabItem name="Backdrops">Backdrop</TabItem>
+				<TabMenu headerClassName="pl-20 text-base" activeIndex={0}>
+					<TabItem name="Backdrops">
+						<MultiCarousel
+							key="backdrops"
+							className="mx-[74px]"
+							value={media.data?.backdrops}
+							numScroll={2}
+							numVisible={5}
+							showIndicators={false}
+							showNavigators={true}
+							isLoading={media.isPending}
+							itemTemplate={mediaTemplate}
+						/>
+					</TabItem>
 
-					<TabItem name="Posters">Posters</TabItem>
+					<TabItem name="Posters">
+						<MultiCarousel
+							key="posters"
+							className="mx-[74px]"
+							value={media.data?.posters}
+							numScroll={2}
+							numVisible={6}
+							showIndicators={false}
+							showNavigators={true}
+							isLoading={media.isPending}
+							itemTemplate={mediaTemplate}
+						/>
+					</TabItem>
 
 					<TabItem name="Videos">Videos</TabItem>
 				</TabMenu>
+			</section>
+
+			<div className="mb-14 mt-16 h-[1px] w-full bg-black-700"></div>
+
+			{/* Recommendations */}
+			<section className="flex w-full flex-col gap-4">
+				<h1 className="pl-20 text-lg font-bold">Recommendations Series for you</h1>
+
+				{seriesRecommendations.data?.results ? (
+					<MultiCarousel
+						className="mx-[74px]"
+						value={seriesRecommendations.data?.results}
+						numScroll={2}
+						numVisible={4}
+						showIndicators={false}
+						showNavigators={true}
+						isLoading={
+							seriesRecommendations.isPending || seriesRecommendations.isRefetching
+						}
+						itemTemplate={(item: ICinemas) => (
+							<CinemaCard
+								href={route(`main.${item.media_type}.detail`, {
+									id: item.id,
+									slug: item.slug,
+								})}
+								data={item}
+								className="mx-1.5"
+							/>
+						)}
+					/>
+				) : (
+					<p className="mt-10 text-center text-lg font-semibold text-gray">
+						We don't have any Similar Series for {series.data?.title}.
+					</p>
+				)}
 			</section>
 		</MainLayout>
 	);

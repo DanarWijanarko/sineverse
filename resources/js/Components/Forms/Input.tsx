@@ -5,11 +5,12 @@ interface InputProps {
 	className?: string | null;
 	type: "text" | "password";
 	name: string;
-	label: string;
+	label?: string;
 	placeholder: string;
 	autoComplete?: string;
+	value?: string;
 	onChange: React.ChangeEventHandler<HTMLInputElement>;
-	error: string | undefined;
+	error?: string | undefined;
 }
 
 const Input = ({
@@ -19,6 +20,7 @@ const Input = ({
 	label,
 	placeholder,
 	autoComplete,
+	value,
 	onChange,
 	error,
 }: InputProps) => {
@@ -30,15 +32,19 @@ const Input = ({
 
 	return (
 		<div className={classNames("flex flex-col items-start gap-1.5", className)}>
-			<label htmlFor="email" className="text-base font-bold text-white">
-				{label}
-			</label>
+			{label && (
+				<label htmlFor="email" className="text-base font-bold text-white">
+					{label}
+				</label>
+			)}
 			<div className="relative w-full">
 				<input
 					type={showPassword ? "text" : type}
 					id={name}
 					placeholder={placeholder}
 					autoComplete={autoComplete}
+					defaultValue={value}
+					// value={value}
 					onChange={onChange}
 					className={classNames(
 						"w-full rounded-md border border-black-700 bg-black-900 pb-2.5 text-sm text-white shadow-none transition-all placeholder:font-light placeholder:text-gray focus:border-white focus:ring-[0.5px] focus:ring-white",
@@ -79,7 +85,7 @@ const Input = ({
 					</button>
 				) : null}
 			</div>
-			{error ? <p className="transform-gpu text-xs font-medium text-red">{error}</p> : null}
+			{error && <p className="transform-gpu text-xs font-medium text-red">{error}</p>}
 		</div>
 	);
 };

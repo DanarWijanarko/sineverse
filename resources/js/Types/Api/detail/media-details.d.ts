@@ -15,5 +15,5 @@ interface IVideos {
 interface IMediaResult {
 	backdrops: Array<string>;
 	posters: Array<string>;
-	videos: Array<IVideos>;
+	videos: Array<IVideos> | undefined;
 }

@@ -5,6 +5,7 @@ import { decimal } from "@/Services/Utils/Format/numbers/decimal";
 import { language } from "@/Services/Utils/Format/regions/language";
 import { toSlug } from "@/Services/Utils/Format/slug/toSlug";
 import { mediaType } from "@/Services/Utils/Format/tmdb/mediaType";
+import { minutes } from "@/Services/Utils/Format/tmdb/minutes";
 
 export const DetailCinemaModel = (
 	dataProps: ISeriesDetail | IMovieDetail,
@@ -52,7 +53,11 @@ export const DetailCinemaModel = (
 		return {
 			media_type: mediaType(media_type),
 			backdrop: HImg(data.backdrop_path),
-			belongs_to_collection: data.belongs_to_collection,
+			belongs_to_collection: {
+				id: data.belongs_to_collection.id,
+				name: data.belongs_to_collection.name,
+				slug: toSlug(data.belongs_to_collection.name),
+			},
 			budget: data.budget,
 			genres: data.genres,
 			id: data.id,
@@ -70,7 +75,7 @@ export const DetailCinemaModel = (
 			}),
 			release_date: dateLong(data.release_date),
 			revenue: data.revenue,
-			runtime: data.runtime,
+			runtime: minutes(data.runtime),
 			title: data.title,
 			vote_average: decimal(data.vote_average),
 			vote_count: data.vote_count,

@@ -77,24 +77,7 @@ const TabMenu: React.FC<PropsWithChildren<TabMenuProps>> = ({
 			</div>
 
 			{/* Content */}
-			<div className={`relative`}>
-				{Object.keys(childContent).map((key, index) => (
-					<Transition
-						key={index}
-						show={key === active}
-						enter="origin-top-left transition-all duration-500"
-						enterFrom="opacity-0 scale-0"
-						enterTo="opacity-100 scale-100"
-						leave="origin-top-right transition-all duration-500"
-						leaveFrom="opacity-100 scale-100"
-						leaveTo="opacity-0 scale-0"
-					>
-						<div className={`absolute h-full w-full ${contentClassName}`}>
-							{childContent[key]}
-						</div>
-					</Transition>
-				))}
-			</div>
+			<div className={`h-full w-full ${contentClassName}`}>{childContent[active]}</div>
 		</section>
 	);
 };

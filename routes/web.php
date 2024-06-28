@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Browse\CollectionController;
+use App\Http\Controllers\Browse\CompanyController;
+use App\Http\Controllers\Browse\NetworkController;
+use App\Http\Controllers\Browse\PersonController;
+use App\Http\Controllers\Browse\SearchController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Main\MovieController;
@@ -40,4 +46,12 @@ Route::name('main.')->group(function () {
 	Route::get('/profile', function () {
 		return inertia('Main/Profile/Index');
 	})->name('index')->middleware('auth');
+});
+
+Route::prefix('browse')->name('browse.')->group(function () {
+	Route::get('/person/{slug}/q', [PersonController::class, 'show'])->name('person.detail');
+	Route::get('/network/{slug}/q', [NetworkController::class, 'show'])->name('network.detail');
+	Route::get('/company/{slug}/q', [CompanyController::class, 'show'])->name('company.detail');
+	Route::get('/collection/{slug}/q', [CollectionController::class, 'show'])->name('collection.detail');
+	Route::get('/search', [SearchController::class, 'show'])->name('search');
 });

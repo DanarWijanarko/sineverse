@@ -23,7 +23,7 @@ interface ISeriesDetail extends ICinemaDetail {
 }
 
 interface IMovieDetail extends ICinemaDetail {
-	belongs_to_collection: { id: number; name: string } | undefined;
+	belongs_to_collection: { id: number; name: string };
 	budget: number | undefined;
 	original_title: string;
 	release_date: Date | undefined;
@@ -57,7 +57,7 @@ interface ISeriesDetailResult {
 interface IMovieDetailResult {
 	media_type: string | undefined;
 	backdrop: string;
-	belongs_to_collection: { id: number; name: string } | undefined;
+	belongs_to_collection: { id: number; name: string; slug: string } | undefined;
 	budget: number | undefined;
 	genres: Array<IGenres>;
 	id: number;
@@ -69,7 +69,7 @@ interface IMovieDetailResult {
 	production_companies: Array<{ id: number; name: string; slug: string }>;
 	release_date: string | undefined;
 	revenue: number | undefined;
-	runtime: number | undefined;
+	runtime: string | undefined;
 	title: string;
 	vote_average: string | undefined;
 	vote_count: number | undefined;

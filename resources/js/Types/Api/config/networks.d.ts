@@ -4,7 +4,7 @@ interface INetworks {
 	id: number;
 	logo_path: string;
 	name: string | undefined;
-	origin_country: string | undefined;
+	origin_country: string;
 }
 
 interface INetworkResults {
